@@ -1,5 +1,5 @@
 locals {
-    feip_config_name = "${var.name}-lb-fe-ipconfig"
+  feip_config_name = "${var.name}-lb-fe-ipconfig"
 }
 
 resource "azurerm_virtual_network" "default" {
@@ -23,26 +23,26 @@ resource "azurerm_subnet" "sf" {
   address_prefix       = "10.0.1.0/24"
 }
 
-resource "azurerm_public_ip" "sf" { # public ip and dns allocation
-  name                         = "${var.name}-pip"
-  location                     = "${azurerm_resource_group.default.location}"
-  resource_group_name          = "${azurerm_resource_group.default.name}"
-  public_ip_address_allocation = "dynamic"
+resource "azurerm_public_ip" "sf" {
+  name                = "${var.name}-pip" # public ip and dns allocation
+  location            = "${azurerm_resource_group.default.location}"
+  resource_group_name = "${azurerm_resource_group.default.name}"
+  allocation_method   = "Dynamic"
 }
 
-resource "azurerm_lb" "sf" { # load balancer
-  name                = "${var.name}-lb"
+resource "azurerm_lb" "sf" {
+  name                = "${var.name}-lb" # load balancer
   location            = "${azurerm_resource_group.default.location}"
   resource_group_name = "${azurerm_resource_group.default.name}"
 
   frontend_ip_configuration {
-    name                 = "${locals.feip_config_name}"
+    name                 = "${local.feip_config_name}"
     public_ip_address_id = "${azurerm_public_ip.sf.id}"
   }
 }
 
-resource "azurerm_lb_nat_pool" "sf" { # nat pool for load balancer
-  name                           = "${var.name}-nat-pool"
+resource "azurerm_lb_nat_pool" "sf" {
+  name                           = "${var.name}-nat-pool" # nat pool for load balancer
   resource_group_name            = "${azurerm_resource_group.default.name}"
   loadbalancer_id                = "${azurerm_lb.sf.id}"
   count                          = "1"
@@ -50,7 +50,7 @@ resource "azurerm_lb_nat_pool" "sf" { # nat pool for load balancer
   frontend_port_start            = 3389
   frontend_port_end              = 4500
   backend_port                   = 3389
-  frontend_ip_configuration_name = "${locals.feip_config_name}"
+  frontend_ip_configuration_name = "${local.feip_config_name}"
 }
 
 resource "azurerm_lb_backend_address_pool" "sf" {
@@ -60,15 +60,15 @@ resource "azurerm_lb_backend_address_pool" "sf" {
 }
 
 # Probes
-resource "azurerm_lb_probe" "fabric_gateway" { # SF client endpoint port.
-  resource_group_name = "${azurerm_resource_group.default.name}"
+resource "azurerm_lb_probe" "fabric_gateway" {
+  resource_group_name = "${azurerm_resource_group.default.name}" # SF client endpoint port.
   loadbalancer_id     = "${azurerm_lb.sf.id}"
   name                = "${var.name}-probe-19000"
   port                = 19000
 }
 
-resource "azurerm_lb_probe" "http" { # SF client http endpoint port.
-  resource_group_name = "${azurerm_resource_group.default.name}"
+resource "azurerm_lb_probe" "http" {
+  resource_group_name = "${azurerm_resource_group.default.name}" # SF client http endpoint port.
   loadbalancer_id     = "${azurerm_lb.sf.id}"
   name                = "${var.name}-probe-19080"
   port                = 19080
@@ -83,7 +83,7 @@ resource "azurerm_lb_rule" "http" {
   protocol                       = "Tcp"
   frontend_port                  = 19080
   backend_port                   = 19080
-  frontend_ip_configuration_name = "${locals.feip_config_name}"
+  frontend_ip_configuration_name = "${local.feip_config_name}"
 }
 
 resource "azurerm_lb_rule" "fabric_gateway" {
@@ -95,5 +95,5 @@ resource "azurerm_lb_rule" "fabric_gateway" {
   protocol                       = "Tcp"
   frontend_port                  = 19000
   backend_port                   = 19000
-  frontend_ip_configuration_name = "${locals.feip_config_name}"
+  frontend_ip_configuration_name = "${local.feip_config_name}"
 }

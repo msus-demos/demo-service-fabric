@@ -4,7 +4,7 @@ resource "azuread_application" "cluster" {
 }
 
 resource "azuread_service_principal" "cluster" {
-  application_id = "${azuread_application.default.application_id}"
+  application_id = "${azuread_application.cluster.application_id}"
 }
 
 resource "random_string" "cluster_password" {
@@ -13,11 +13,10 @@ resource "random_string" "cluster_password" {
 }
 
 resource "azuread_service_principal_password" "cluster" {
-  service_principal_id = "${azuread_service_principal.default.id}"
+  service_principal_id = "${azuread_service_principal.cluster.id}"
   value                = "${random_string.cluster_password.result}"
   end_date             = "2099-01-01T01:00:00Z"
 }
-
 
 # Service Fabric Client
 resource "azuread_application" "client" {
@@ -25,7 +24,7 @@ resource "azuread_application" "client" {
 }
 
 resource "azuread_service_principal" "client" {
-  application_id = "${azuread_application.default.application_id}"
+  application_id = "${azuread_application.client.application_id}"
 }
 
 resource "random_string" "client_password" {
@@ -34,7 +33,7 @@ resource "random_string" "client_password" {
 }
 
 resource "azuread_service_principal_password" "client" {
-  service_principal_id = "${azuread_service_principal.default.id}"
+  service_principal_id = "${azuread_service_principal.client.id}"
   value                = "${random_string.client_password.result}"
   end_date             = "2099-01-01T01:00:00Z"
 }
