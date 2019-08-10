@@ -41,7 +41,7 @@ resource "azurerm_lb" "sf" { # load balancer
   }
 }
 
-resource "azurerm_lb_nat_pool" "default" { # nat pool for load balancer
+resource "azurerm_lb_nat_pool" "sf" { # nat pool for load balancer
   name                           = "${var.name}-nat-pool"
   resource_group_name            = "${azurerm_resource_group.default.name}"
   loadbalancer_id                = "${azurerm_lb.sf.id}"

@@ -2,6 +2,10 @@ variable "name" {
   default = "demo-service-fabric"
 }
 
+variable "prefix" {
+  default = "mtcden"
+}
+
 variable "environment" {
     default = "sandbox"
 }
