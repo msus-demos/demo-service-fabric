@@ -1,6 +1,39 @@
 # Service Fabric Cluster
 resource "azuread_application" "cluster" {
   name = "${var.name}-${var.environment}"
+  reply_urls = ["https://${azurerm_public_ip.sf.fqdn}:19080/Explorer/index.html"]
+
+  app_role {
+    allowed_member_types = [
+      "User",
+    ]
+
+    description  = "Admins can manage roles and perform all task actions"
+    display_name = "Admin"
+    is_enabled   = true
+    value        = "Admin"
+  }
+
+  app_role {
+    allowed_member_types = [
+      "User",
+    ]
+
+    description  = "ReadOnly roles have limited query access"
+    display_name = "ReadOnly"
+    is_enabled   = true
+    value        = "User"
+  }
+
+  required_resource_access {
+    resource_app_id = "00000003-0000-0000-c000-000000000000" # Microsoft Graph API
+
+    # DELEGATED PERMISSIONS: "Sign in and read user profile":
+    resource_access {
+      id   = "e1fe6dd8-ba31-4d61-89e7-88639da4683d"
+      type = "Scope"
+    }
+  }
 }
 
 resource "azuread_service_principal" "cluster" {
