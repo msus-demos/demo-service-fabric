@@ -87,18 +87,26 @@ resource "azurerm_virtual_machine_scale_set" "default" {
     type_handler_version = "1.0"
 
     settings = <<EOT
-{
-  "certificate": {
-    "thumbprint": "${azurerm_key_vault_certificate.cluster.thumbprint}",
-    "x509StoreName": "My"
-  },
-  "clusterEndpoint": "${azurerm_service_fabric_cluster.default.cluster_endpoint}",
-  "nodeTypeRef": "default",
-  "dataPath": "D:\\SvcFab",
-  "enableParallelJobs": true,
-  "durabilityLevel": "Bronze",
-  "nicPrefixOverride": "10.0.1.0/24"
-}
-EOT
+    {
+      "certificate": {
+        "thumbprint": "${azurerm_key_vault_certificate.cluster.thumbprint}",
+        "x509StoreName": "My"
+      },
+      "clusterEndpoint": "${azurerm_service_fabric_cluster.default.cluster_endpoint}",
+      "nodeTypeRef": "default",
+      "dataPath": "D:\\SvcFab",
+      "enableParallelJobs": true,
+      "durabilityLevel": "Bronze",
+      "nicPrefixOverride": "10.0.1.0/24"
+    }
+    EOT
+
+    protected_settings = <<EOT
+    {
+      "StorageAccountKey1": "${azurerm_storage_account.sf.primary_access_key}",
+    }
+    EOT
+
   }
 }
+
