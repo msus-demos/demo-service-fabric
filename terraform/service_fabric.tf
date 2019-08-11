@@ -3,8 +3,8 @@ resource "azurerm_service_fabric_cluster" "default" {
   resource_group_name = "${azurerm_resource_group.default.name}"
   location            = "${azurerm_resource_group.default.location}"
   reliability_level   = "Bronze"
-  vm_image            = "Linux"
-  management_endpoint = "https://example:80"
+  vm_image            = "Windows"
+  management_endpoint = "https://${azurerm_public_ip.sf.fqdn}:19080"
   upgrade_mode        = "Automatic"
 
   add_on_features = ["DnsService"]
@@ -45,7 +45,7 @@ resource "azurerm_service_fabric_cluster" "default" {
     name = "ClusterManager"
 
     parameters = {
-      EnableDefaultServicesUpgrade = "False"
+      EnableDefaultServicesUpgrade = "True"
     }
   }
 
@@ -55,6 +55,16 @@ resource "azurerm_service_fabric_cluster" "default" {
     x509_store_name      = "My"
   }
 }
+
+
+resource "azurerm_storage_account" "vmss" {
+  name                     = "${var.prefix}${substr(replace(var.name, "-", ""), 0, 16)}${var.environment_short}"
+  resource_group_name      = "${azurerm_resource_group.default.name}"
+  location                 = "${azurerm_resource_group.default.location}"
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
 
 # Vm Scale Set
 resource "azurerm_virtual_machine_scale_set" "default" {
@@ -106,6 +116,11 @@ resource "azurerm_virtual_machine_scale_set" "default" {
     }
   }
 
+  boot_diagnostics {
+    enabled = true
+    storage_uri = "${azurerm_storage_account.vmss.primary_blob_endpoint}"
+  }
+
   network_profile {
     name    = "NetworkProfile"
     primary = true
@@ -134,8 +149,9 @@ resource "azurerm_virtual_machine_scale_set" "default" {
   "clusterEndpoint": "${azurerm_service_fabric_cluster.default.cluster_endpoint}",
   "nodeTypeRef": "default",
   "dataPath": "D:\\SvcFab",
+  "enableParallelJobs": true,
   "durabilityLevel": "Bronze",
-  "nicPrefixOverride": "10.0.0.0/24"
+  "nicPrefixOverride": "10.0.1.0/24"
 }
 EOT
   }

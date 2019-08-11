@@ -10,6 +10,10 @@ variable "environment" {
   default = "sandbox"
 }
 
+variable "environment_short" {
+  default = "sbx"
+}
+
 variable "cluster_size" {
   default = 3
 }

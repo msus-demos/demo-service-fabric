@@ -24,14 +24,15 @@ resource "azurerm_subnet" "sf" {
 }
 
 resource "azurerm_public_ip" "sf" {
-  name                = "${var.name}-pip" # public ip and dns allocation
+  name                = "${var.name}-pip"
   location            = "${azurerm_resource_group.default.location}"
   resource_group_name = "${azurerm_resource_group.default.name}"
   allocation_method   = "Dynamic"
+  domain_name_label   = "${var.prefix}-${var.name}-${var.environment_short}-sf"
 }
 
 resource "azurerm_lb" "sf" {
-  name                = "${var.name}-lb" # load balancer
+  name                = "${var.name}-lb"
   location            = "${azurerm_resource_group.default.location}"
   resource_group_name = "${azurerm_resource_group.default.name}"
 
@@ -42,7 +43,7 @@ resource "azurerm_lb" "sf" {
 }
 
 resource "azurerm_lb_nat_pool" "sf" {
-  name                           = "${var.name}-nat-pool" # nat pool for load balancer
+  name                           = "${var.name}-nat-pool"
   resource_group_name            = "${azurerm_resource_group.default.name}"
   loadbalancer_id                = "${azurerm_lb.sf.id}"
   count                          = "1"
@@ -61,14 +62,14 @@ resource "azurerm_lb_backend_address_pool" "sf" {
 
 # Probes
 resource "azurerm_lb_probe" "fabric_gateway" {
-  resource_group_name = "${azurerm_resource_group.default.name}" # SF client endpoint port.
+  resource_group_name = "${azurerm_resource_group.default.name}"
   loadbalancer_id     = "${azurerm_lb.sf.id}"
   name                = "${var.name}-probe-19000"
   port                = 19000
 }
 
 resource "azurerm_lb_probe" "http" {
-  resource_group_name = "${azurerm_resource_group.default.name}" # SF client http endpoint port.
+  resource_group_name = "${azurerm_resource_group.default.name}"
   loadbalancer_id     = "${azurerm_lb.sf.id}"
   name                = "${var.name}-probe-19080"
   port                = 19080

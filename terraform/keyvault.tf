@@ -1,10 +1,12 @@
 resource "azurerm_key_vault" "cluster" {
-  name                = "${var.prefix}-${var.name}-${substr(var.environment, 0, 2)}-kv"
-  location            = "${azurerm_resource_group.default.location}"
-  resource_group_name = "${azurerm_resource_group.default.name}"
-  tenant_id           = "${data.azurerm_client_config.current.tenant_id}"
-
-  sku_name = "standard"
+  name                            = "${var.prefix}-${var.name}-${var.environment_short}-kv"
+  location                        = "${azurerm_resource_group.default.location}"
+  resource_group_name             = "${azurerm_resource_group.default.name}"
+  tenant_id                       = "${data.azurerm_client_config.current.tenant_id}"
+  enabled_for_deployment          = true
+  enabled_for_disk_encryption     = true
+  enabled_for_template_deployment = true
+  sku_name                        = "standard"
 }
 
 resource "azurerm_key_vault_certificate" "cluster" {
