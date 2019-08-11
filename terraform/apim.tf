@@ -1,5 +1,5 @@
 resource "azurerm_api_management" "default" {
-  name                = "${var.prefix}-${var.name}=${var.environment}-apim"
+  name                = "${var.prefix}-${var.name}-${var.environment}-apim"
   location            = "${azurerm_resource_group.default.location}"
   resource_group_name = "${azurerm_resource_group.default.name}"
   publisher_name      = "${var.api_publisher_name}"
