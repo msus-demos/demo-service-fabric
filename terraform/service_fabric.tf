@@ -63,6 +63,11 @@ resource "azurerm_service_fabric_cluster" "default" {
     x509_store_name      = "My"
   }
 
+  client_certificate_thumbprint {
+    thumbprint = "${azurerm_key_vault_certificate.client.thumbprint}"
+    is_admin   = false
+  }
+
   diagnostics_config {
     storage_account_name = "${azurerm_storage_account.sf.name}"
     protected_account_key_name = "StorageAccountKey1"

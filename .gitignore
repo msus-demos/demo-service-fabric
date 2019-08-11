@@ -1,2 +1,4 @@
 *.tfstate*
 .terraform/
+bin/
+obj/
