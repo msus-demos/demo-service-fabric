@@ -29,4 +29,4 @@ stages:
       - task: PublishPipelineArtifact@0
         inputs:
           artifactName: 'drop' 
-          targetPath: 
+          targetPath: $(Build.ArtifactStagingDirectory)
