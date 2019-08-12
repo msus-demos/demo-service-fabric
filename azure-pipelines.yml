@@ -30,7 +30,7 @@ stages:
             # Publish SF Service
             dotnet build src/SFDemo/SFDemo.sln
 
-            cp ./src/* $(Build.ArtifactStagingDirectory)/ -R
+            cp ./src/SFDemo/* $(Build.ArtifactStagingDirectory)/ -R
       
       # Publish artifacts
       - task: PublishPipelineArtifact@0
