@@ -25,10 +25,13 @@ stages:
             # Restore SF Build SDK
             nuget restore src/SFDemo/SFDemo/ -PackagesDirectory src/SFDemo/packages/
 
-            # Publish SF Application
+            # Build Binaries
+            dotnet build src/SFDemo/SFDemo.sln
+
+            # Package SF Application
             dotnet msbuild .\src\SFDemo\SFDemo\SFDemo.sfproj /t:package
 
-            cp src/SFDemo/SFDemo/pkg/Debug/* $(Build.ArtifactStagingDirectory)/ -R
+            cp ./src/SFDemo/SFDemo/pkg/Debug/* $(Build.ArtifactStagingDirectory)/ -R
       
       # Update Service Versions based on build number
       - task: ServiceFabricUpdateManifests@2
