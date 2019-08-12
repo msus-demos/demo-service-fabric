@@ -31,13 +31,13 @@ stages:
             # Package SF Application
             dotnet msbuild .\src\SFDemo\SFDemo\SFDemo.sfproj /t:package
 
-            cp ./src/SFDemo/SFDemo/pkg/Debug/* $(Build.ArtifactStagingDirectory)/ -R
+            cp ./src/SFDemo/SFDemo/* $(Build.ArtifactStagingDirectory)/ -R
       
       # Update Service Versions based on build number
       - task: ServiceFabricUpdateManifests@2
         inputs:
           updateType: 'Manifest versions'
-          applicationPackagePath: '$(Build.ArtifactStagingDirectory)'
+          applicationPackagePath: '$(Build.ArtifactStagingDirectory)/pkg/Debug'
           versionSuffix: '$(Build.BuildNumber)'
           versionBehavior: 'Replace'
           updateOnlyChanged: false
@@ -61,8 +61,8 @@ stages:
       # Deploy!Deploy Deploy
       - task: ServiceFabricDeploy@1
         inputs:
-          applicationPackagePath: './SFDemo/ApplicationPackageRoot'
+          applicationPackagePath: './pkg/Debug'
           serviceConnectionName: 'demo-sf-sandbox'
-          publishProfilePath: './SFDemo/PublishProfiles/Cloud.xml'
-          applicationParameterPath: './SFDemo/ApplicationParameters/Cloud.xml'
+          publishProfilePath: './PublishProfiles/Cloud.xml'
+          applicationParameterPath: './ApplicationParameters/Cloud.xml'
           overwriteBehavior: 'SameAppTypeAndVersion'
