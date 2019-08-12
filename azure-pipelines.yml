@@ -31,7 +31,7 @@ stages:
             # Publish SF Service
             dotnet build src/SFDemo/SFDemo.sln
 
-            cp ./src/SFDemo/* $(Build.ArtifactStagingDirectory)/ -R
+            cp ./src/* $(Build.ArtifactStagingDirectory)/ -R
       
       # Update Service Versions based on build number
       - task: ServiceFabricUpdateManifests@2
