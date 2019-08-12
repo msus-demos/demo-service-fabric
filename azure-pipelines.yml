@@ -12,10 +12,12 @@ stages:
     steps:
       # Install nuget.exe
       - task: NuGetToolInstaller@1
+        displayName: Install Nuget Tools
         inputs:
           versionSpec: '4.9.3'
           
       - task: PowerShell@2
+        displayName: Build Application
         inputs:
           targetType: 'inline'
           script: |
@@ -29,10 +31,10 @@ stages:
             dotnet build src/SFDemo/SFDemo.sln
 
             cp ./src/* $(Build.ArtifactStagingDirectory)/ -R
-        displayName: Publish Binaries
       
       # Publish artifacts
       - task: PublishPipelineArtifact@0
+        displayName: Publish Artifacts for Deployment
         inputs:
           artifactName: 'drop' 
           targetPath: $(Build.ArtifactStagingDirectory)
