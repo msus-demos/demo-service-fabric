@@ -9,24 +9,24 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
-steps:
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - script: |
+        # Restore SF Build SDK
+        nuget restore .\src\SFDemo\SFDemo\ -PackagesDirectory .\src\SFDemo\packages\
 
-# Publish Services
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: '**\*.sln'
-    arguments: '-o $(Build.ArtifactStagingDirectory)/'
-    zipAfterPublish: false
-    modifyOutputPath: false
+        # Publish SF Application
+        dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
 
-# Publish Service Fabric Applications
-- task: DotNetCoreCLI@2
-  inputs:
-    command: 'publish'
-    publishWebProjects: false
-    projects: '**\*.sfproj'
-    arguments: '-o $(Build.ArtifactStagingDirectory)/'
-    zipAfterPublish: false
-    modifyOutputPath: false
+        # Publish SF Service
+        dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
+
+      - task: PublishPipelineArtifact@0
+        inputs:
+          artifactName: 'drop' 
+          targetPath: 
