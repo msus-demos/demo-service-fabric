@@ -2,6 +2,7 @@ trigger:
 - master
 
 stages:
+# Build
 - stage: build
   displayName: Build
   jobs:
@@ -15,7 +16,7 @@ stages:
         displayName: Install Nuget Tools
         inputs:
           versionSpec: '4.9.3'
-          
+      
       - task: PowerShell@2
         displayName: Build Application
         inputs:
@@ -32,9 +33,36 @@ stages:
 
             cp ./src/SFDemo/* $(Build.ArtifactStagingDirectory)/ -R
       
+      # Update Service Versions based on build number
+      - task: ServiceFabricUpdateManifests@2
+        inputs:
+          updateType: 'Manifest versions'
+          applicationPackagePath: '$(Build.ArtifactStagingDirectory)/drop/SFDemo/ApplicationPackageRoot'
+          versionSuffix: '$(Build.BuildNumber)'
+          versionBehavior: 'Replace'
+          updateOnlyChanged: false
+      
       # Publish artifacts
       - task: PublishPipelineArtifact@0
         displayName: Publish Artifacts for Deployment
         inputs:
           artifactName: 'drop' 
           targetPath: $(Build.ArtifactStagingDirectory)
+
+# Staging Release
+- stage: staging
+  displayName: Staging
+  jobs:
+  - job: release
+    displayName: Staging Release
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      # Deploy!Deploy Deploy
+      - task: ServiceFabricDeploy@1
+        inputs:
+          applicationPackagePath: '$(Build.ArtifactStagingDirectory)/drop/SFDemo/ApplicationPackageRoot'
+          serviceConnectionName: 'demo-sf-sandbox'
+          publishProfilePath: '$(Build.ArtifactStagingDirectory)/drop/SFDemo/PublishProfiles/Cloud.xml'
+          applicationParameterPath: '$(Build.ArtifactStagingDirectory)/drop/SFDemo/ApplicationParameters/Cloud.xml'
+          overwriteBehavior: 'SameAppTypeAndVersion'
