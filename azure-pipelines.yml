@@ -10,17 +10,26 @@ stages:
     pool:
       vmImage: 'windows-latest'
     steps:
-      - script: |
-          # Restore SF Build SDK
-          nuget restore .\src\SFDemo\SFDemo\ -PackagesDirectory .\src\SFDemo\packages\
+      # Install nuget.exe
+      - task: NuGetToolInstaller@1
+        inputs:
+          versionSpec: '4.9.3'
+          
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            # Restore SF Build SDK
+            nuget restore ./src/SFDemo/SFDemo/ -PackagesDirectory ./src/SFDemo/packages/
 
-          # Publish SF Application
-          dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
+            # Publish SF Application
+            dotnet publish src/SFDemo/SFDemo/.sfproj -o $(Build.ArtifactStagingDirectory)
 
-          # Publish SF Service
-          dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
+            # Publish SF Service
+            dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
         displayName: Publish Binaries
-
+      
+      # Publish artifacts
       - task: PublishPipelineArtifact@0
         inputs:
           artifactName: 'drop' 
