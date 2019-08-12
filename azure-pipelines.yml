@@ -23,7 +23,7 @@ stages:
             nuget restore ./src/SFDemo/SFDemo/ -PackagesDirectory ./src/SFDemo/packages/
 
             # Publish SF Application
-            dotnet publish src/SFDemo/SFDemo/.sfproj -o $(Build.ArtifactStagingDirectory)
+            dotnet publish src/SFDemo/SFDemo/SFDemo.sfproj -o $(Build.ArtifactStagingDirectory)
 
             # Publish SF Service
             dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
