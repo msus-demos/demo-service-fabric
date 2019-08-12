@@ -10,10 +10,23 @@ pool:
   vmImage: 'windows-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+# Publish Services
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**\*.sln'
+    arguments: '-o $(Build.ArtifactStagingDirectory)/'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
+# Publish Service Fabric Applications
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**\*.sfproj'
+    arguments: '-o $(Build.ArtifactStagingDirectory)/'
+    zipAfterPublish: false
+    modifyOutputPath: false
