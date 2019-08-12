@@ -37,7 +37,7 @@ stages:
       - task: ServiceFabricUpdateManifests@2
         inputs:
           updateType: 'Manifest versions'
-          applicationPackagePath: '$(Build.ArtifactStagingDirectory)/SFDemo/ApplicationPackageRoot'
+          applicationPackagePath: '$(Build.ArtifactStagingDirectory)/SFDemo/SFDemo/pkg/Debug'
           versionSuffix: '$(Build.BuildNumber)'
           versionBehavior: 'Replace'
           updateOnlyChanged: false
