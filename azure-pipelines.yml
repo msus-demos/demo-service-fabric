@@ -10,21 +10,24 @@ pool:
   vmImage: 'windows-latest'
 
 stages:
-- stage: Build
+- stage: build
+  displayName: Build
   jobs:
-  - job: Build
+  - job: build
+    displayName: Build Service Fabric Services
     pool:
       vmImage: 'windows-latest'
     steps:
       - script: |
-        # Restore SF Build SDK
-        nuget restore .\src\SFDemo\SFDemo\ -PackagesDirectory .\src\SFDemo\packages\
+          # Restore SF Build SDK
+          nuget restore .\src\SFDemo\SFDemo\ -PackagesDirectory .\src\SFDemo\packages\
 
-        # Publish SF Application
-        dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
+          # Publish SF Application
+          dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
 
-        # Publish SF Service
-        dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
+          # Publish SF Service
+          dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
+        displayName: Publish Binaries
 
       - task: PublishPipelineArtifact@0
         inputs:
