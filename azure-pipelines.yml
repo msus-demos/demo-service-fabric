@@ -23,7 +23,7 @@ stages:
           targetType: 'inline'
           script: |
             # Restore SF Build SDK
-            nuget restore ./src/SFDemo/SFDemo/ -PackagesDirectory ./src/SFDemo/packages/
+            nuget restore src/SFDemo/SFDemo/ -PackagesDirectory src/SFDemo/packages/
 
             # Publish SF Application
             dotnet build src/SFDemo/SFDemo/SFDemo.sfproj
@@ -31,13 +31,13 @@ stages:
             # Publish SF Service
             dotnet build src/SFDemo/SFDemo.sln
 
-            cp ./src/* $(Build.ArtifactStagingDirectory)/ -R
+            cp src/SFDemo/SFDemo/pkg/Debug/* $(Build.ArtifactStagingDirectory)/ -R
       
       # Update Service Versions based on build number
       - task: ServiceFabricUpdateManifests@2
         inputs:
           updateType: 'Manifest versions'
-          applicationPackagePath: '$(Build.ArtifactStagingDirectory)/SFDemo/SFDemo/pkg/Debug'
+          applicationPackagePath: '$(Build.ArtifactStagingDirectory)'
           versionSuffix: '$(Build.BuildNumber)'
           versionBehavior: 'Replace'
           updateOnlyChanged: false
