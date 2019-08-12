@@ -1,0 +1,32 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+
+# Publish Services
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**\*.sln'
+    arguments: '-o $(Build.ArtifactStagingDirectory)/'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
+# Publish Service Fabric Applications
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**\*.sfproj'
+    arguments: '-o $(Build.ArtifactStagingDirectory)/'
+    zipAfterPublish: false
+    modifyOutputPath: false
