@@ -43,11 +43,8 @@ stages:
           updateOnlyChanged: false
       
       # Publish artifacts
-      - task: PublishPipelineArtifact@0
-        displayName: Publish Artifacts for Deployment
-        inputs:
-          artifactName: 'drop' 
-          targetPath: $(Build.ArtifactStagingDirectory)
+      - publish: $(Build.ArtifactStagingDirectory)/
+        artifact: demo
 
 # Staging Release
 - stage: staging
@@ -58,11 +55,14 @@ stages:
     pool:
       vmImage: 'windows-latest'
     steps:
+      - download: current
+        artifact: demo
+      
       # Deploy!Deploy Deploy
       - task: ServiceFabricDeploy@1
         inputs:
-          applicationPackagePath: '$(Build.ArtifactStagingDirectory)/drop/SFDemo/ApplicationPackageRoot'
+          applicationPackagePath: './SFDemo/ApplicationPackageRoot'
           serviceConnectionName: 'demo-sf-sandbox'
-          publishProfilePath: '$(Build.ArtifactStagingDirectory)/drop/SFDemo/PublishProfiles/Cloud.xml'
-          applicationParameterPath: '$(Build.ArtifactStagingDirectory)/drop/SFDemo/ApplicationParameters/Cloud.xml'
+          publishProfilePath: './SFDemo/PublishProfiles/Cloud.xml'
+          applicationParameterPath: './SFDemo/ApplicationParameters/Cloud.xml'
           overwriteBehavior: 'SameAppTypeAndVersion'
