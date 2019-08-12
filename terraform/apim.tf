@@ -10,11 +10,11 @@ resource "azurerm_api_management" "default" {
     capacity = 1
   }
 
-  certificate {
-      encoded_certificate  = "${azurerm_key_vault_certificate.client.certificate_data}"
-      certificate_password = ""
-      store_name           = "Root"
-  }
+  # certificate {
+  #     encoded_certificate  = "${base64encode(azurerm_key_vault_certificate.client.certificate_data)}"
+  #     certificate_password = ""
+  #     store_name           = "Root"
+  # }
 }
 
 resource "azurerm_api_management_api" "default" {
@@ -27,31 +27,59 @@ resource "azurerm_api_management_api" "default" {
   protocols           = ["https"]
 }
 
-resource "azurerm_api_management_backend" "sf" {
-  name                = "service-fabric-backend"
-  resource_group_name = "${azurerm_resource_group.default.name}"
-  api_management_name = "${azurerm_api_management.default.name}"
-  protocol            = "http"
-  url                 = "${azurerm_service_fabric_cluster.default.management_endpoint}"
+# resource "azurerm_api_management_backend" "sf" {
+#   name                = "service-fabric-backend"
+#   resource_group_name = "${azurerm_resource_group.default.name}"
+#   api_management_name = "${azurerm_api_management.default.name}"
+#   protocol            = "http"
+#   url                 = "${azurerm_service_fabric_cluster.default.management_endpoint}"
   
-  service_fabric_cluster {
-      client_certificate_thumbprint    = "${azurerm_key_vault_certificate.client.thumbprint}"
-      management_endpoints             = ["${azurerm_service_fabric_cluster.default.management_endpoint}"]
-      max_partition_resolution_retries = 3
-  }
-}
+#   service_fabric_cluster {
+#       client_certificate_thumbprint    = "${azurerm_key_vault_certificate.client.thumbprint}"
+#       management_endpoints             = ["${azurerm_service_fabric_cluster.default.management_endpoint}"]
+#       max_partition_resolution_retries = 3
+#   }
+# }
 
-resource "azurerm_api_management_api_operation" "default" {
-  operation_id        = "get-me"
-  api_name            = "${azurerm_api_management_api.default.name}"
-  api_management_name = "${azurerm_api_management_api.default.api_management_name}"
-  resource_group_name = "${azurerm_api_management_api.default.resource_group_name}"
-  display_name        = "Get ME"
-  method              = "GET"
-  url_template        = "/users/{id}/delete"
-  description         = "This can only be done by the logged in user."
+# resource "azurerm_api_management_api_policy" "route_to_sf" {
+#   api_name            = "${data.azurerm_api_management_api.default.name}"
+#   api_management_name = "${data.azurerm_api_management_api.default.api_management_name}"
+#   resource_group_name = "${data.azurerm_api_management_api.default.resource_group_name}"
 
-  response {
-    status_code = 200
-  }
+#   xml_content = <<EOT
+# <policies>
+#   <inbound>
+#     <base/>
+#     <set-backend-service
+#         backend-id="${azurerm_api_management_backend.sf.name}"
+#          sf-service-instance-name="fabric:/@(context.Request.MatchedParameters["application"])/@(context.Request.MatchedParameters["service"])
+#         sf-resolve-condition="@(context.LastError?.Reason == "BackendConnectionFailure")" />
+#   </inbound>
+#   <backend>
+#     <base/>
+#   </backend>
+#   <outbound>
+#     <base/>
+#   </outbound>
+# </policies>
+# EOT
+# }
+
+# resource "azurerm_api_management_api_operation" "default" {
+#   operation_id        = "service-index"
+#   api_name            = "${azurerm_api_management_api.default.name}"
+#   api_management_name = "${azurerm_api_management_api.default.api_management_name}"
+#   resource_group_name = "${azurerm_api_management_api.default.resource_group_name}"
+#   display_name        = "Get Index"
+#   method              = "GET"
+#   url_template        = "/{application}/{service}/"
+#   description         = "Get the index of a service"
+
+#   response {
+#     status_code = 200
+#   }
+# }
+
+output "certificate_data" {
+  value = "${base64encode(azurerm_key_vault_certificate.client.certificate_data)}"
 }
