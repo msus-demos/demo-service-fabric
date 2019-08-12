@@ -166,3 +166,10 @@ resource "azurerm_key_vault_certificate" "client" {
     }
   }
 }
+
+
+# Download client cert from keyvault and do the following to add a password to go to APIM
+# Manually Add for now
+#
+# openssl pkcs12 -in mycert.pfx -out temp.pem
+# openssl pkcs12 -export -out mycert2.pfx -in temp.pem

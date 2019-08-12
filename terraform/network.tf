@@ -23,6 +23,14 @@ resource "azurerm_subnet" "sf" {
   address_prefix       = "10.0.1.0/24"
 }
 
+resource "azurerm_subnet" "apim" {
+  name                 = "${var.name}-apim-subnet"
+  resource_group_name  = "${azurerm_resource_group.default.name}"
+  virtual_network_name = "${azurerm_virtual_network.default.name}"
+  address_prefix       = "10.0.2.0/24"
+}
+
+
 resource "azurerm_public_ip" "sf" {
   name                = "${var.name}-pip"
   location            = "${azurerm_resource_group.default.location}"

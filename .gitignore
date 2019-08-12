@@ -2,3 +2,6 @@
 .terraform/
 bin/
 obj/
+pkg/
+.vs/
+packages/
