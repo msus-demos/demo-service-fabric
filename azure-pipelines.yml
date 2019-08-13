@@ -65,4 +65,6 @@ stages:
           serviceConnectionName: 'demo-sf-sandbox'
           publishProfilePath: '$(Pipeline.Workspace)/demo/PublishProfiles/Cloud.xml'
           applicationParameterPath: '$(Pipeline.Workspace)/demo/ApplicationParameters/Cloud.xml'
-          overwriteBehavior: 'SameAppTypeAndVersion'
+          overwriteBehavior: 'Always'
+
+
