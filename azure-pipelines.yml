@@ -58,11 +58,13 @@ stages:
       - download: current
         artifact: demo
       
+      - script: ls
+      
       # Deploy!Deploy Deploy
       - task: ServiceFabricDeploy@1
         inputs:
-          applicationPackagePath: './demo/pkg/Debug'
+          applicationPackagePath: './pkg/Debug'
           serviceConnectionName: 'demo-sf-sandbox'
-          publishProfilePath: './demo/PublishProfiles/Cloud.xml'
-          applicationParameterPath: './demo/ApplicationParameters/Cloud.xml'
+          publishProfilePath: './PublishProfiles/Cloud.xml'
+          applicationParameterPath: './ApplicationParameters/Cloud.xml'
           overwriteBehavior: 'SameAppTypeAndVersion'
