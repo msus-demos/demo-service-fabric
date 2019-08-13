@@ -50,39 +50,46 @@ resource "azurerm_api_management_backend" "sf" {
   }
 }
 
-resource "azurerm_api_management_api_policy" "route_to_sf" {
-  api_name            = "${azurerm_api_management_api.default.name}"
-  api_management_name = "${azurerm_api_management_api.default.api_management_name}"
-  resource_group_name = "${azurerm_api_management_api.default.resource_group_name}"
+# resource "azurerm_api_management_api_policy" "route_to_sf" {
+#   api_name            = "${azurerm_api_management_api.default.name}"
+#   api_management_name = "${azurerm_api_management_api.default.api_management_name}"
+#   resource_group_name = "${azurerm_api_management_api.default.resource_group_name}"
 
-  xml_content = <<EOT
-<set-backend-service backend-id="${azurerm_api_management_backend.sf.name}" sf-resolve-condition="@(context.LastError?.Reason == "BackendConnectionFailure")" sf-service-instance-name="@($"fabric:/{context.Request.MatchedParameters["application"]}/{context.Request.MatchedParameters["service"]}")" />
-EOT
-}
+#   xml_content = <<EOT
+# <set-backend-service backend-id="${azurerm_api_management_backend.sf.name}" sf-resolve-condition="@(context.LastError?.Reason == "BackendConnectionFailure")" sf-service-instance-name="@($"fabric:/{context.Request.MatchedParameters["application"]}/{context.Request.MatchedParameters["service"]}")" />
+# EOT
+# }
 
-resource "azurerm_api_management_api_operation" "default" {
-  operation_id        = "service-index"
-  api_name            = "${azurerm_api_management_api.default.name}"
-  api_management_name = "${azurerm_api_management_api.default.api_management_name}"
-  resource_group_name = "${azurerm_api_management_api.default.resource_group_name}"
-  display_name        = "Get Index"
-  method              = "GET"
-  url_template        = "/{application}/{service}/"
-  description         = "Get the index of a service"
+# resource "azurerm_api_management_api_operation" "default" {
+#   operation_id        = "service-index"
+#   api_name            = "${azurerm_api_management_api.default.name}"
+#   api_management_name = "${azurerm_api_management_api.default.api_management_name}"
+#   resource_group_name = "${azurerm_api_management_api.default.resource_group_name}"
+#   display_name        = "Get Index"
+#   method              = "GET"
+#   url_template        = "/{application}/{service}/"
+#   description         = "Get the index of a service"
 
-  template_parameter {
-    name = "application"
-    type = "string"
-    required = true
-  }
+#   template_parameter {
+#     name = "application"
+#     type = "string"
+#     required = true
+#   }
 
-  template_parameter {
-    name = "service"
-    type = "string"
-    required = true
-  }
+#   template_parameter {
+#     name = "service"
+#     type = "string"
+#     required = true
+#   }
 
-  response {
-    status_code = 200
-  }
+#   response {
+#     status_code = 200
+#   }
+# }
+
+resource "azurerm_application_insights" "default" {
+  name                = "${var.name}-${var.environment}-ai"
+  location            = "West US 2"
+  resource_group_name = "${azurerm_resource_group.default.name}"
+  application_type    = "web"
 }
