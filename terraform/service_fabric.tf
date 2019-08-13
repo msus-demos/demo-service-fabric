@@ -65,7 +65,7 @@ resource "azurerm_service_fabric_cluster" "default" {
 
   client_certificate_thumbprint {
     thumbprint = "${azurerm_key_vault_certificate.client.thumbprint}"
-    is_admin   = false
+    is_admin   = true
   }
 
   diagnostics_config {

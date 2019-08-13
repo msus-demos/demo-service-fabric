@@ -39,8 +39,9 @@ resource "azurerm_api_management_backend" "sf" {
   resource_group_name = "${azurerm_resource_group.default.name}"
   api_management_name = "${azurerm_api_management.default.name}"
   protocol            = "http"
-  url                 = "${azurerm_service_fabric_cluster.default.management_endpoint}"
-  
+  url                 = "fabric:/fake/service"
+  resource_id         = "${azurerm_service_fabric_cluster.default.management_endpoint}"
+
   service_fabric_cluster {
       client_certificate_thumbprint    = "${azurerm_key_vault_certificate.client.thumbprint}"
       server_certificate_thumbprints    = ["${azurerm_key_vault_certificate.cluster.thumbprint}"]
@@ -55,35 +56,33 @@ resource "azurerm_api_management_api_policy" "route_to_sf" {
   resource_group_name = "${azurerm_api_management_api.default.resource_group_name}"
 
   xml_content = <<EOT
-<policies>
-  <inbound>
-    <base/>
-    <set-backend-service
-        backend-id="${azurerm_api_management_backend.sf.name}"
-         sf-service-instance-name="fabric:/@(context.Request.MatchedParameters["application"])/@(context.Request.MatchedParameters["service"])
-        sf-resolve-condition="@(context.LastError?.Reason == "BackendConnectionFailure")" />
-  </inbound>
-  <backend>
-    <base/>
-  </backend>
-  <outbound>
-    <base/>
-  </outbound>
-</policies>
+<set-backend-service backend-id="${azurerm_api_management_backend.sf.name}" sf-resolve-condition="@(context.LastError?.Reason == "BackendConnectionFailure")" sf-service-instance-name="@($"fabric:/{context.Request.MatchedParameters["application"]}/{context.Request.MatchedParameters["service"]}")" />
 EOT
 }
 
-# resource "azurerm_api_management_api_operation" "default" {
-#   operation_id        = "service-index"
-#   api_name            = "${azurerm_api_management_api.default.name}"
-#   api_management_name = "${azurerm_api_management_api.default.api_management_name}"
-#   resource_group_name = "${azurerm_api_management_api.default.resource_group_name}"
-#   display_name        = "Get Index"
-#   method              = "GET"
-#   url_template        = "/{application}/{service}/"
-#   description         = "Get the index of a service"
+resource "azurerm_api_management_api_operation" "default" {
+  operation_id        = "service-index"
+  api_name            = "${azurerm_api_management_api.default.name}"
+  api_management_name = "${azurerm_api_management_api.default.api_management_name}"
+  resource_group_name = "${azurerm_api_management_api.default.resource_group_name}"
+  display_name        = "Get Index"
+  method              = "GET"
+  url_template        = "/{application}/{service}/"
+  description         = "Get the index of a service"
 
-#   response {
-#     status_code = 200
-#   }
-# }
+  template_parameter {
+    name = "application"
+    type = "string"
+    required = true
+  }
+
+  template_parameter {
+    name = "service"
+    type = "string"
+    required = true
+  }
+
+  response {
+    status_code = 200
+  }
+}

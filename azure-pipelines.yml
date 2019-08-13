@@ -2,6 +2,7 @@ trigger:
 - master
 
 stages:
+# Build
 - stage: build
   displayName: Build
   jobs:
@@ -10,18 +11,58 @@ stages:
     pool:
       vmImage: 'windows-latest'
     steps:
-      - script: |
-          # Restore SF Build SDK
-          nuget restore .\src\SFDemo\SFDemo\ -PackagesDirectory .\src\SFDemo\packages\
-
-          # Publish SF Application
-          dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
-
-          # Publish SF Service
-          dotnet publish src/SFDemo/SFDemo.sln -o $(Build.ArtifactStagingDirectory)
-        displayName: Publish Binaries
-
-      - task: PublishPipelineArtifact@0
+      # Install nuget.exe
+      - task: NuGetToolInstaller@1
+        displayName: Install Nuget Tools
         inputs:
-          artifactName: 'drop' 
-          targetPath: $(Build.ArtifactStagingDirectory)
+          versionSpec: '4.9.3'
+      
+      - task: PowerShell@2
+        displayName: Build Application
+        inputs:
+          targetType: 'inline'
+          script: |
+            # Restore SF Build SDK
+            nuget restore src/SFDemo/SFDemo/ -PackagesDirectory src/SFDemo/packages/
+
+            # Build Binaries
+            dotnet build src/SFDemo/SFDemo.sln
+
+            # Package SF Application
+            dotnet msbuild .\src\SFDemo\SFDemo\SFDemo.sfproj /t:package
+
+            cp ./src/SFDemo/SFDemo/* $(Build.ArtifactStagingDirectory)/ -R
+      
+      # Update Service Versions based on build number
+      - task: ServiceFabricUpdateManifests@2
+        inputs:
+          updateType: 'Manifest versions'
+          applicationPackagePath: '$(Build.ArtifactStagingDirectory)/pkg/Debug'
+          versionSuffix: '$(Build.BuildNumber)'
+          versionBehavior: 'Replace'
+          updateOnlyChanged: false
+      
+      # Publish artifacts
+      - publish: $(Build.ArtifactStagingDirectory)/
+        artifact: demo
+
+# Staging Release
+- stage: staging
+  displayName: Staging
+  jobs:
+  - job: release
+    displayName: Staging Release
+    pool:
+      vmImage: 'windows-latest'
+    steps:
+      - download: current
+        artifact: demo
+      
+      # Deploy!Deploy Deploy
+      - task: ServiceFabricDeploy@1
+        inputs:
+          applicationPackagePath: '$(Pipeline.Workspace)/demo/pkg/Debug'
+          serviceConnectionName: 'demo-sf-sandbox'
+          publishProfilePath: '$(Pipeline.Workspace)/demo/PublishProfiles/Cloud.xml'
+          applicationParameterPath: '$(Pipeline.Workspace)/demo/ApplicationParameters/Cloud.xml'
+          overwriteBehavior: 'SameAppTypeAndVersion'
