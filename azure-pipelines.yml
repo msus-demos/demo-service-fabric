@@ -58,13 +58,11 @@ stages:
       - download: current
         artifact: demo
       
-      - script: ls
-      
       # Deploy!Deploy Deploy
       - task: ServiceFabricDeploy@1
         inputs:
-          applicationPackagePath: './pkg/Debug'
+          applicationPackagePath: '$(Pipeline.Workspace)/demo/pkg/Debug'
           serviceConnectionName: 'demo-sf-sandbox'
-          publishProfilePath: './PublishProfiles/Cloud.xml'
-          applicationParameterPath: './ApplicationParameters/Cloud.xml'
+          publishProfilePath: '$(Pipeline.Workspace)/demo/PublishProfiles/Cloud.xml'
+          applicationParameterPath: '$(Pipeline.Workspace)/demo/ApplicationParameters/Cloud.xml'
           overwriteBehavior: 'SameAppTypeAndVersion'
